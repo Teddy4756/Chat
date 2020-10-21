@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Chat</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/chat.css" rel="stylesheet">
+  </head>
+
+  <body class="bg-light">
+
+    <nav class="navbar navbar-expand-md fixed-top navbar-dark bg-dark">
+        <span class="navbar-brand" id="headerUserName"></span>
+        <span class="ml-4 text-white font-weight-bolder" >bonjour/bonsoir</span>
+    </nav>
+
+    
+
+    <main role="main" class="container">
+      
+
+      <div id="chatMessage">
+        
+      </div>
+    </main>
+    
+    <section class="fixed-bottom navbar-dark bg-dark">
+        <div class="col-md-12 ">               
+            <form autocomplete="off" id="form">
+                    <div class="row">
+                      <div class="col-md-10 my-3">
+                          <input type="text" name="message" class="form-control" placeholder="" autofocus>
+                      </div>
+                      <div class="col-md-2 my-3">
+                        <button type="button" class="btn bg-success text-white" style="width: 100%;"> Envoyer</button>
+                      </div>                
+                    </div>   
+            </form>
+        </div>
+    </section>
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/js/url.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            chatOne();
+        });
+
+       
+        async function chatOne() {
+            const splitUrls =  window.location.pathname.split('/');
+            const userName = splitUrls[splitUrls.length - 1];
+            $('#headerUserName').text(''+userName+''); 
+            
+        }
+
+        const socket = io.connect(url);
+        socket.on('new_connection', function (connection) {
+            $('#nbrConnection').text(''+connection.nbrConnection+' personne(s) connectée(s)'); 
+        });
+       
+        $('#form').submit(function(event) {
+            event.preventDefault();
+            let message = $('input[name=message]').val();
+            $('input[name=message]').val("");
+            const splitUrls =  window.location.pathname.split('/');
+            const userId = splitUrls[splitUrls.length - 2];
+            socket.emit('new_message', {
+                message: message,
+                id: userId                     
+            });
+        });
+
+        socket.on('send_message', function (message) {
+            $('#chatMessage').append(`
+            <div class="my-3 p-3 bg-white rounded box-shadow">
+                <h6 class="border-bottom border-gray pb-2 mb-0">${message.userName}</h6>
+                <div class="media text-muted pt-3">
+                <img data-src="holder.js/32x32?theme=thumb&bg=007bff&fg=007bff&size=1" alt="" class="mr-2 rounded">
+                <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                    ${message.message}
+                </p>
+                </div>
+            </div>
+            `);
+        });
+
+    </script>
+  </body>
+</html>

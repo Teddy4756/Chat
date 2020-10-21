@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <title>Se connecter</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/login-form.css" rel="stylesheet">
+  </head>
+
+  <body class="text-center bg-light">
+    <form class="form-signin" id="login-form">
+      <h1 class="h3 mb-3 font-weight-normal" id="nbrConnection"></h1>
+      <div id="userId"></div>
+      <label for="inputEmail">Pseudo</label>
+      <input type="text" name="pseudo" class="form-control" placeholder="Entrez votre pseudo" required autofocus>
+      <div class="mt-3">
+        <button  class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </div>
+      
+    </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/js/url.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io.connect(url);
+        socket.on('new_connection', function (connection) {
+            $('#nbrConnection').text(''+connection.nbrConnection+' personne(s) connectée(s)'); 
+        });
+        socket.on('my_id', function (user) {
+            let id = user.myId;
+            $('#userId').children().remove();
+            $('#userId').append(`<input type="text" name="userId" value="${id}" hidden>`);
+        });
+        $('#login-form').submit(function(event) {
+            event.preventDefault();
+            let id = $('input[name=userId]').val();
+            let pseudo =  $('input[name=pseudo]').val() 
+            console.log($('input[name=pseudo]').val());
+            socket.emit('login', {
+                id: id,
+                pseudo: pseudo                
+            });
+            socket.emit('user_disc');
+            window.location = 'http://localhost:8080/chat/'+id+'/'+pseudo;
+        });
+
+    </script>
+  </body>
+</html>
