@@ -66,7 +66,6 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('new_message', function(message) {
         console.log('tableau');
-        console.log(users);
         let userName = '';
         for (let i = 0; i < users.length; i++) {
             if(users[i].id == message.id) {
